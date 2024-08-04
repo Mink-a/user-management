@@ -1,0 +1,86 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Departments {
+  depId     Int      @id @default(autoincrement())
+  name      String
+  label     String
+  flag      Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  staff     Staff[]
+
+  @@map("departments")
+}
+
+model Staff {
+  staffId    Int         @id @default(autoincrement())
+  code       String
+  name       String
+  email      String
+  mobile     String
+  joinedDate DateTime
+  depId      Int
+  position   String
+  age        Int
+  gender     String
+  status     String
+  updatedAt  DateTime    @updatedAt
+  createdAt  DateTime    @default(now())
+  createdBy  Int
+  updatedBy  Int
+  users      Users?
+  department Departments @relation(fields: [depId], references: [depId], onDelete: Cascade)
+
+  @@map("staff")
+}
+
+// staff is like profile for user
+model Users {
+  userId         Int      @id @default(autoincrement())
+  staffId        Int      @unique
+  name           String
+  email          String   @unique
+  hashedPassword String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  createdBy      Int
+  updatedBy      Int
+  flag           Boolean
+  staff          Staff    @relation(fields: [staffId], references: [staffId], onDelete: Cascade)
+  role           Roles[]
+
+  @@map("users")
+}
+
+model Roles {
+  roleId      Int           @id @default(autoincrement())
+  name        String
+  label       String
+  flag        Boolean
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  users       Users[]
+  permissions Permissions[]
+
+  @@map("roles")
+}
+
+model Permissions {
+  permissionId Int      @id @default(autoincrement())
+  name         String
+  label        String
+  flag         Boolean
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  roles        Roles[]
+
+  @@map("permissions")
+}
